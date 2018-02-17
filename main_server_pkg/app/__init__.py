@@ -24,4 +24,6 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 login_manager.login_message_category = "info"  # customize the flash message category
 
+app.config.from_object(__name__)
+
 from app import views
