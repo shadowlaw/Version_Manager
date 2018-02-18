@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<form method ="POST" action="{{ url_for('login') }}">
+    <div class = "col">
+        <label for = "username">{{ loginForm.username.label }} </label>
+        {{ loginForm.username() }}
+    </div>
+    <div class = "col">
+        <label for = "password">{{ loginForm.password.label }} </label>
+        {{ loginForm.password() }}
+    </div>
+    <input type="submit" name="Login" value="Login"/>
+</form>
+{% endblock %}
