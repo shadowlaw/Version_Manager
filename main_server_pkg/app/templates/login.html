@@ -1,11 +1,27 @@
 {% extends 'base.html' %}
 
 {% block main %}
+{% if initial%}
+<form method ="POST" action="{{ url_for('login') }}">
+	{{ passwordForm.csrf_token }}
+    <div class = "col">
+        <label >Welcome Admin. Please enter a new password</label>
+    </div>
+    <div class = "col">
+        <label for = "password">{{ passwordForm.password.label }} </label>
+        {{ passwordForm.password() }}
+    </div>
+    <div class = "col">
+        <label for = "confirm">{{ passwordForm.confirm.label }} </label>
+        {{ passwordForm.confirm() }}
+    </div>
+    <input type="submit" name="Submit" value="Submit"/>
+</form>    
+{% else %}
 <form method ="POST" action="{{ url_for('login') }}">
 	{{ loginForm.csrf_token }}
     <div class = "col">
-        <label for = "username">{{ loginForm.username.label }} </label>
-        {{ loginForm.username() }}
+        <label >Welcome Admin</label>
     </div>
     <div class = "col">
         <label for = "password">{{ loginForm.password.label }} </label>
@@ -13,4 +29,5 @@
     </div>
     <input type="submit" name="Login" value="Login"/>
 </form>
+{% endif %}
 {% endblock %}
