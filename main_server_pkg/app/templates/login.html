@@ -24,6 +24,10 @@
         <label >Welcome Admin</label>
     </div>
     <div class = "col">
+        <label for = "password">{{ loginForm.username.label }} </label>
+        {{ loginForm.username() }}
+    </div>
+    <div class = "col">
         <label for = "password">{{ loginForm.password.label }} </label>
         {{ loginForm.password() }}
     </div>

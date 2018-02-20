@@ -1,6 +1,8 @@
-from app import app
+from app import app, db, login_manager
 from flask import render_template, request, redirect, url_for, flash, session
+from flask_login import login_user, logout_user, current_user, login_required
 from forms import LoginForm, PasswordForm
+from models import User
 from werkzeug.security import check_password_hash, generate_password_hash
 
 @app.route('/')
@@ -10,29 +12,23 @@ def home():
 
 @app.route('/login', methods=["GET","POST"])
 def login():
-	password = file_reader('pass.txt')
-	
-	print password
-		
-	if password == "":
-		passwordForm = PasswordForm()
-		
-		if change_password(passwordForm):
-			flash('Password created. Please Login', 'success')
-			return redirect(url_for('login'))
-		else:
-			flash("Password does not match", "danger")
-			
-		
-		return render_template('login.html', initial = True, passwordForm = passwordForm)
-	
 	loginForm = LoginForm()
+	
+	if current_user.is_authenticated:
+		redirect(url_for('home'))
+		
 	
 	if request.method == 'POST' and loginForm.validate_on_submit():
 		
-		if check_password_hash(password, loginForm.password.data):
+		user = User.query.filter_by(username=loginForm.username.data).first()
+		
+		print loginForm.password.data
+		print user.password
+		
+		if user is not None and check_password_hash(user.password, loginForm.password.data):
 			
-			session['logged_in'] = True
+			login_user(user)
+			
 			flash('Logged in successfully.', 'success')
 			
 			next_page = request.args.get('next')
@@ -46,13 +42,14 @@ def login():
 
 
 @app.route('/logout')
+@login_required
 def logout():
-	if session['logged_in']:
-		session['logged_in'] = False
-	
+	logout_user()
 	return redirect(url_for('home'))
 	
-
+@login_manager.user_loader
+def load_user(id):
+    return User.query.get(int(id))
 
 @app.errorhandler(404)
 def error404():
@@ -69,22 +66,4 @@ def add_header(response):
     response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
     response.headers['Cache-Control'] = 'public, max-age=0'
     return response
-    
-  
-def file_reader(filename):
-	with open(filename,"r") as fp:
-		return fp.read()
-		
 
-def file_writer(filename, data):
-	with open(filename,"w") as fp:
-		fp.write(data)
-		
-def change_password(passwordForm):
-	if passwordForm.validate_on_submit():
-		if passwordForm.password.data==passwordForm.confirm.data:
-			file_writer('pass.txt', generate_password_hash(passwordForm.password.data))
-			return True
-		else:
-			return False
-				
