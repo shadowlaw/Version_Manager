@@ -34,3 +34,19 @@ class User(db.Model):
 
     def __repr__(self):
         return '<User %r>' %  self.username
+        
+        
+class Node(db.Model):
+    
+    __tablename__ = 'nodes'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), unique=True)
+    password = db.Column(db.String(225))
+    api_key = db.Column(db.String(225))
+    
+    
+    def __init__(self, name, password, key):
+        self.name = name
+        self.password = generate_password_hash(password, method='pbkdf2:sha256')
+        self.api_key = key
