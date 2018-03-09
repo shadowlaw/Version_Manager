@@ -40,7 +40,8 @@ class Node(db.Model):
     
     __tablename__ = 'nodes'
     
-    id = db.Column(db.Integer, primary_key=True)
+    node_id = db.Column(db.Integer, primary_key=True)
+    app_list_id = db.Column(db.Integer)
     name = db.Column(db.String(255), unique=True)
     password = db.Column(db.String(225))
     api_key = db.Column(db.String(225))
@@ -50,3 +51,10 @@ class Node(db.Model):
         self.name = name
         self.password = generate_password_hash(password, method='pbkdf2:sha256')
         self.api_key = key
+        
+class AppList(db.Model):
+    
+    __tablename__ = 'application_list'
+    
+    list_id = db.Column(db.Integer, primary_key=True)
+    list_path = db.Column(db.String(255))

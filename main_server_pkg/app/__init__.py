@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from db_config import db_config
+import os
 
 app = Flask(__name__)
 
@@ -24,6 +25,8 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'  # necessary to tell Flask-Login what the default route is for the login page
 login_manager.login_message_category = "info"  # customize the flash message category
 
+cwd = os.path.join(os.getcwd(),"app")
+application_list_location = "../node_app_list"
 
 app.config.from_object(__name__)
 

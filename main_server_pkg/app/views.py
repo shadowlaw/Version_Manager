@@ -1,5 +1,5 @@
 #app, sqlalchemy database object and login manager object imports
-from app import app, db, login_manager
+from app import app, db, login_manager, cwd
 
 #basic flask imports
 from flask import render_template, request, redirect, url_for, flash, jsonify
@@ -11,7 +11,7 @@ from flask_login import login_user, logout_user, current_user, login_required
 from forms import LoginForm, PasswordForm
 
 #model imports for user and network nodes (machines for version control)
-from models import User, Node
+from models import User, Node, AppList
 
 #password hashing checking functions
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -22,6 +22,14 @@ from uuid import uuid1
 
 init_node_auth_code = None #global value to use to initialize a node
 
+#default python package imports
+import json
+import os
+
+#user made modules
+import fileManager
+
+################# web views #####################
 #root route for main server view
 @app.route('/')
 def home():
@@ -59,8 +67,7 @@ def login():
 			flash('Username or Password is incorrect.', 'danger')
 		
 
-	return render_template("login.html", initial = False, loginForm = loginForm)
-
+	return render_template("login.html", loginForm = loginForm)
 
 #main server dashboard route
 @app.route('/dashboard')
@@ -71,7 +78,7 @@ def dash():
 
 
 #api route for main server user to generate a 
-@app.route('/add_node')
+@app.route('/add_node', methods=["POST"])
 @login_required
 def rando_gen():
 	'''Generates a random number between 1000000 and 10000000. Returns the number as json to a loged in requester.'''
@@ -81,8 +88,16 @@ def rando_gen():
 	init_node_auth_code = randrange(1000000, 10000000)
 	return jsonify(auth_key=init_node_auth_code)
 
+@app.route('/view_nodes')
+@login_required
+def list_nodes():
+	nodes = Node.query.filter_by().all()
+	return render_template('nodes_workbench.html', nodes=nodes)
 
-@app.route('/node_init_auth', methods=['POST'])
+##############################################################
+
+################### Client api routes ########################
+@app.route('/node_init_auth', methods=['POST', 'GET'])
 def init_node_auth():
 	'''Route to setup a new node. This route allows a node to associate with the main server and retrieves an api key once the correct
 	auth code is provided.
@@ -90,6 +105,11 @@ def init_node_auth():
 	@return Api key on successful association; False if auth_key is incorrect 
 	and a blank json object on unathorized attempt to authenticate
 	'''
+	
+	if request.method == 'GET':
+		init_node_auth_code = None
+		return jsonify()
+	
 	global init_node_auth_code
 	node_name = request.args['machine_name']
 	node_auth_code = int(request.args['node_auth_code'])
@@ -101,24 +121,64 @@ def init_node_auth():
 	
 	if init_node_auth_code != node_auth_code:
 		init_node_auth_code = None
-		return jsonify(result=False)
+		return jsonify(key=False)
 	
 	api_key = key_gen()
 	
+	## add check for already existing node
+	node = Node.query.filter_by(node_name = node_name).first()
+	
+	if node != None:
+		return jsonify(key=None)
+		
 	node = Node(node_name, node_pass, api_key) # creates new node object for database insertion
 	
 	try:
 		#attempt to add node to database
 		db.session.add(node)
 		db.session.commit()
-		print 'here'
 		init_node_auth_code = None
 		return jsonify(key=api_key)
 	except Exception as e:
 		db.session.rollback()
-		return jsonify(result=False)
+		return jsonify(key="error")
 		
+
+	
+@app.route('/app_valid', methods = ["GET", "POST"])
+def validate_cli_app():
+	request_key = request.json[0]['key']
+	
+	node = Node.query.filter_by(api_key = request_key).first()
+	
+	if node is None:
+		return jsonify()
 		
+	set_app_list = AppList.query.filter_by(list_id = node.app_list_id).first()
+	
+	if set_app_list is None:
+		return jsonify(response='no list')
+	
+	rec_app_list = request.json[1]["apps"]
+	
+	curr_app_list = json.loads(fileManager.read_file(os.path.join(cwd,set_app_list.list_path), 'r'))['apps']  #loads list of apps from server FS
+	print (curr_app_list)
+	curr_names = curr_app_list.keys()
+	change = dict()
+	to_install = dict()
+
+	for name in curr_names:
+		if rec_app_list.has_key(name): #check if the response has app key that we're looking for
+			if not rec_app_list[name] == curr_app_list[name]: #if it does then it'll check the version
+				change[name] = curr_app_list[name]
+		else:
+			to_install[name] = curr_app_list[name]
+	
+	return jsonify(install = to_install, changes=change) # will return new apps and versions to install and corrections to already installed applications
+	
+	
+	
+##########################################################################
 @app.route('/logout')
 @login_required
 def logout():

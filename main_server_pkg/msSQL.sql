@@ -16,6 +16,7 @@ id int(10) auto_increment not null,
 name varchar(255) not null,
 password varchar(255) not null,
 api_key varchar(255),
+UNIQUE(name),
 primary key (id)
 );
 
