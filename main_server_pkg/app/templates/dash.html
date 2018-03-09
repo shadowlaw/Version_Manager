@@ -1,0 +1,16 @@
+{%extends "base.html"%}
+
+{% block css %}
+{% endblock %}
+
+{% block main %}
+<a id = 'add_node' href = "#">Add node</a>
+<a id='list_all_nodes' href="#">List all nodes</a>
+
+<div id="auth_code_result"></div>
+{% endblock %}
+
+
+{% block js %}
+<script src="{{ url_for('static', filename='js/dash.js') }}"></script>
+{% endblock %}
