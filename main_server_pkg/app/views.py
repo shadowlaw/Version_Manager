@@ -88,11 +88,48 @@ def rando_gen():
 	init_node_auth_code = randrange(1000000, 10000000)
 	return jsonify(auth_key=init_node_auth_code)
 
-@app.route('/view_nodes')
+@app.route('/node_management', methods=["GET", "POST"])
 @login_required
 def list_nodes():
-	nodes = Node.query.filter_by().all()
-	return render_template('nodes_workbench.html', nodes=nodes)
+	nodes = None
+	
+	
+	if request.method == "POST":
+		data = request.json
+		group_name = data["name"]
+		
+		for node in data["nodes"]:
+			if node["value"] == "on":
+				node = Node.query.filter_by(name = node["name"]).first()
+				node.group = group_name
+				try:
+					db.session.commit()
+				except Exception as e:
+					pass
+		
+		return "List Added"
+		
+	nodes = Node.query.order_by(Node.name).all()
+	
+	return render_template("manage_nodes.html", nodes = nodes)
+
+@app.route("/app_list_mgmt", methods=["GET", "POST"])
+@login_required
+def app_list():
+	
+	
+	if request.args.to_dict() != dict():
+		if request.args["atn"] == "crt" and request.method == "POST":
+			pass
+		elif request.args["atn"] == "crt":
+			return render_template("create_app_list.html");
+		
+		if request.args["atn"] == "del" and request.method == "POST":
+			pass
+	
+	app_lists = AppList.query.order_by(AppList.name).all()
+	
+	return render_template("display_app_list.html", app_lists = app_lists)
 
 ##############################################################
 

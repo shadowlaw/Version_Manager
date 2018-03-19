@@ -11,9 +11,16 @@ function add(){
     
 }
 
-
 function eventSetup(){
     $("#add_node")[0].addEventListener("click",add);
+    
+    $("#list_all_nodes")[0].addEventListener("click", function(){
+        $("#request-container").load("node_management");
+    });
+    
+    $("#app-list")[0].addEventListener("click", function(){
+        $("#request-container").load("app_list_mgmt")
+    });
 }
 
 function main(){

@@ -1,0 +1,44 @@
+<h3>Node Management</h3>
+<p>
+    Add a node to a node group
+</p>
+<div class="row">
+    <span class="col-md-4"> Machine name </span>
+    <span class="col-md-4"> Assigned to list </span>
+    <span class="col-md-4" style="text-align: center;"> Add </span>
+</div>
+<form>
+    {% for node in nodes %}
+    <div class="node-container row">
+        <span class="col-md-4">{{ node.name }}</span>
+        <span class="col-md-4"> {{ node.app_list_id }} </span>
+        <input class="col-md-4" type="checkbox" name="{{ node.name }}"/>
+    </div>
+    {% endfor %}
+    <div class="row" style="margin-top: 1%;">
+        <label for="node_group_name" style="margin-right: 5px"> Group Name </label>
+        <input type="text" id="node_group_name" class="col-md-4" style="margin-right: 1%;"/>
+        <input type="submit" value="Create Group" class="col-sm-2 btn btn-success"/>
+    </div>
+</form>
+
+<script>
+    $("input[type=submit]")[0].addEventListener("click", send);
+    
+    function send(event){
+        event.preventDefault();
+        let list_name = $("input[type=text]")[0].value;
+        let checked_box = $("form").serializeArray();
+        
+        $.ajax({
+            url: "node_management",
+            method: "POST",
+            data: JSON.stringify({name: list_name, nodes: checked_box}),
+            contentType: "application/json",
+            async: false
+        }).done(function(response){
+            $("#request-container")[0].innerHTML = response;
+        });
+    }
+    
+</script>

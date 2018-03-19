@@ -45,6 +45,7 @@ class Node(db.Model):
     name = db.Column(db.String(255), unique=True)
     password = db.Column(db.String(225))
     api_key = db.Column(db.String(225))
+    group = db.Column(db.String(80))
     
     
     def __init__(self, name, password, key):
@@ -57,4 +58,9 @@ class AppList(db.Model):
     __tablename__ = 'application_list'
     
     list_id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80))
     list_path = db.Column(db.String(255))
+    
+    def __init__(self, name, list_path):
+        self.name = name
+        self.list_path = list_path
