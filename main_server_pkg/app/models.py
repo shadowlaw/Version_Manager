@@ -58,9 +58,7 @@ class AppList(db.Model):
     __tablename__ = 'application_list'
     
     list_id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80))
-    list_path = db.Column(db.String(255))
+    name = db.Column(db.String(80), unique=True)
     
-    def __init__(self, name, list_path):
+    def __init__(self, name):
         self.name = name
-        self.list_path = list_path

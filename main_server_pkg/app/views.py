@@ -1,5 +1,5 @@
 #app, sqlalchemy database object and login manager object imports
-from app import app, db, login_manager, cwd
+from app import app, db, login_manager, cwd, application_list_location
 
 #basic flask imports
 from flask import render_template, request, redirect, url_for, flash, jsonify
@@ -15,6 +15,9 @@ from models import User, Node, AppList
 
 #password hashing checking functions
 from werkzeug.security import check_password_hash, generate_password_hash
+
+#secure filename import
+from werkzeug.utils import secure_filename
 
 #imports for authentication value random generation
 from random import randrange
@@ -117,17 +120,38 @@ def list_nodes():
 @login_required
 def app_list():
 	
-	
 	if request.args.to_dict() != dict():
 		if request.args["atn"] == "crt" and request.method == "POST":
-			pass
+			list_data = request.get_json()["app_data"]
+			list_name = secure_filename(request.get_json()["list_name"])
+			new_app_list = dict()
+			
+			new_app_list["apps"] = {}
+			
+			for items in list_data:
+				new_app_list["apps"][items["app_name"]] = items["version"]
+			
+			try:
+				appObj = AppList(list_name)
+				
+				db.session.add(appObj)
+				db.session.commit()
+				
+				absolute_path = generate_app_list_path(list_name)
+				json.dump(new_app_list, open(absolute_path, "w"), indent=2)
+				return "List Created"
+			except Exception as e:
+				db.session.rollback()
+				print e.args
+				return "List could not be created"
+				
 		elif request.args["atn"] == "crt":
-			return render_template("create_app_list.html");
+			return render_template("create_app_list.html")
 		
 		if request.args["atn"] == "del" and request.method == "POST":
 			pass
 	
-	app_lists = AppList.query.order_by(AppList.name).all()
+	app_lists = AppList.query.order_by(AppList.list_id).all()
 	
 	return render_template("display_app_list.html", app_lists = app_lists)
 
@@ -198,7 +222,8 @@ def validate_cli_app():
 	
 	rec_app_list = request.json[1]["apps"]
 	
-	curr_app_list = json.loads(fileManager.read_file(os.path.join(cwd,set_app_list.list_path), 'r'))['apps']  #loads list of apps from server FS
+	file_path = generate_app_list_path(set_app_list.name)
+	curr_app_list = json.loads(fileManager.read_file(file_path))['apps']  #loads list of apps from server FS
 	print (curr_app_list)
 	curr_names = curr_app_list.keys()
 	change = dict()
@@ -216,6 +241,10 @@ def validate_cli_app():
 	
 	
 ##########################################################################
+
+def generate_app_list_path(list_name):
+	return os.path.join(cwd,application_list_location, list_name+".json")
+
 @app.route('/logout')
 @login_required
 def logout():

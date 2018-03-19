@@ -7,10 +7,12 @@
     </div>
     
     <div class ="row" style="margin-bottom: 1%">
+        <span class="col-sm-1"> List ID </span>
         <span class="col-md-4"> List Name</span>
     </div>
     {% for list in app_lists %}
         <div class="list-container row" style="margin-bottom:1%;">
+            <span class="col-sm-1">{{ list.list_id }}</span>
             <span class="col-md-4">{{ list.name }}</span>
             <input type="button" class="col-md-2 btn btn-primary" style="margin-right: 1%" value="view"/>
             <input type="button" class="col-md-2 btn btn-danger" value="Delete"/>

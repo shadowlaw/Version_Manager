@@ -26,7 +26,7 @@ login_manager.login_view = 'login'  # necessary to tell Flask-Login what the def
 login_manager.login_message_category = "info"  # customize the flash message category
 
 cwd = os.path.join(os.getcwd(),"app")
-application_list_location = "../node_app_list"
+application_list_location = "node_app_list"
 
 app.config.from_object(__name__)
 
