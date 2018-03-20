@@ -94,8 +94,6 @@ def rando_gen():
 @app.route('/node_management', methods=["GET", "POST"])
 @login_required
 def list_nodes():
-	nodes = None
-	
 	
 	if request.method == "POST":
 		data = request.json
@@ -104,7 +102,7 @@ def list_nodes():
 		for node in data["nodes"]:
 			if node["value"] == "on":
 				node = Node.query.filter_by(name = node["name"]).first()
-				node.group = group_name
+				node.node_group = group_name
 				try:
 					db.session.commit()
 				except Exception as e:
@@ -112,9 +110,32 @@ def list_nodes():
 		
 		return "List Added"
 		
-	nodes = Node.query.order_by(Node.name).all()
+	nodes = Node.query.order_by(Node.node_id).all()
 	
-	return render_template("manage_nodes.html", nodes = nodes)
+	for node in nodes:
+		print node.name
+		
+	return render_template("manage_nodes.html", nodes=nodes)
+
+@app.route("/node_list_assoc", methods=["GET", "POST"])
+@login_required
+def node_list_assoc():
+	
+	# handle post method
+	
+	sql ="select node_group from nodes group by node_group;"
+	cur=db.engine.execute(sql)
+	results = cur.fetchall()
+	
+	group_list=[]
+	
+	for item in results:
+		group_list.append(item[0])
+		
+	app_list = AppList.query.order_by(AppList.list_id).all()
+		
+	return render_template("node_list_assoc.html", app_lists = app_list, group_lists = group_list)
+	
 
 @app.route("/app_list_mgmt", methods=["GET", "POST"])
 @login_required

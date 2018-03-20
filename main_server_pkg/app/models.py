@@ -45,7 +45,7 @@ class Node(db.Model):
     name = db.Column(db.String(255), unique=True)
     password = db.Column(db.String(225))
     api_key = db.Column(db.String(225))
-    group = db.Column(db.String(80))
+    node_group = db.Column(db.String(80))
     
     
     def __init__(self, name, password, key):
