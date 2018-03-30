@@ -36,7 +36,6 @@ import fileManager
 #root route for main server view
 @app.route('/')
 def home():
-	print current_user.is_authenticated
 	if current_user.is_authenticated:
 		return redirect(url_for('dash'))
 
@@ -106,14 +105,11 @@ def list_nodes():
 				try:
 					db.session.commit()
 				except Exception as e:
-					pass
+					print e
 		
 		return "List Added"
 		
 	nodes = Node.query.order_by(Node.node_id).all()
-	
-	for node in nodes:
-		print node.name
 		
 	return render_template("manage_nodes.html", nodes=nodes)
 
@@ -121,7 +117,20 @@ def list_nodes():
 @login_required
 def node_list_assoc():
 	
-	# handle post method
+	if request.method == "POST":
+		associationArray = request.get_json()["grouping_data"]
+		
+		for obj in associationArray:
+			working_node_list = Node.query.filter_by(node_group=obj["name"]).all()
+			
+			for node in working_node_list:
+				node.app_list_id = obj["value"]
+				try:
+					db.session.commit()
+				except Exception as e:
+					print e
+					
+		return redirect(url_for("list_nodes"))
 	
 	sql ="select node_group from nodes group by node_group;"
 	cur=db.engine.execute(sql)
@@ -133,8 +142,8 @@ def node_list_assoc():
 		group_list.append(item[0])
 		
 	app_list = AppList.query.order_by(AppList.list_id).all()
-		
-	return render_template("node_list_assoc.html", app_lists = app_list, group_lists = group_list)
+	
+	return render_template("node_list_assoc.html", app_lists = app_list, group_lists = group_list, list_length=len(app_list))
 	
 
 @app.route("/app_list_mgmt", methods=["GET", "POST"])
@@ -179,7 +188,7 @@ def app_list():
 ##############################################################
 
 ################### Client api routes ########################
-@app.route('/node_init_auth', methods=['POST', 'GET'])
+@app.route('/node_init_auth', methods=['GET','POST'])
 def init_node_auth():
 	'''Route to setup a new node. This route allows a node to associate with the main server and retrieves an api key once the correct
 	auth code is provided.
@@ -187,15 +196,16 @@ def init_node_auth():
 	@return Api key on successful association; False if auth_key is incorrect 
 	and a blank json object on unathorized attempt to authenticate
 	'''
+	global init_node_auth_code
 	
 	if request.method == 'GET':
 		init_node_auth_code = None
 		return jsonify()
-	
-	global init_node_auth_code
-	node_name = request.args['machine_name']
-	node_auth_code = int(request.args['node_auth_code'])
-	node_pass = request.args['new_pass']
+		
+	data = request.get_json()
+	node_name = data['machine_name']
+	node_auth_code = int(data['node_auth_code'])
+	node_pass = data['new_pass']
 	
 	
 	if init_node_auth_code is None:
@@ -239,13 +249,13 @@ def validate_cli_app():
 	set_app_list = AppList.query.filter_by(list_id = node.app_list_id).first()
 	
 	if set_app_list is None:
-		return jsonify(response='no list')
+		return jsonify(message='no list')
 	
 	rec_app_list = request.json[1]["apps"]
 	
 	file_path = generate_app_list_path(set_app_list.name)
 	curr_app_list = json.loads(fileManager.read_file(file_path))['apps']  #loads list of apps from server FS
-	print (curr_app_list)
+	
 	curr_names = curr_app_list.keys()
 	change = dict()
 	to_install = dict()
