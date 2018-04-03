@@ -8,4 +8,3 @@ Thumbs.db
 # virtualenv
 .venv/
 venv/
-msvenv/

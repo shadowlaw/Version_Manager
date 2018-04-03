@@ -1,5 +1,5 @@
 #app, sqlalchemy database object and login manager object imports
-from app import app, db, login_manager, cwd, application_list_location
+from app import app, db, login_manager
 
 #basic flask imports
 from flask import render_template, request, redirect, url_for, flash, jsonify
@@ -8,7 +8,7 @@ from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_user, logout_user, current_user, login_required
 
 #form imports
-from forms import LoginForm, PasswordForm
+from forms import LoginForm, NewNodeForm
 
 #model imports for user and network nodes (machines for version control)
 from models import User, Node, AppList
@@ -19,15 +19,13 @@ from werkzeug.security import check_password_hash, generate_password_hash
 #secure filename import
 from werkzeug.utils import secure_filename
 
-#imports for authentication value random generation
-from random import randrange
-from uuid import uuid1
-
-init_node_auth_code = None #global value to use to initialize a node
-
 #default python package imports
 import json
 import os
+
+##imports for authentication value random generation
+from random import randrange
+from uuid import uuid1
 
 #user made modules
 import fileManager
@@ -54,7 +52,7 @@ def login():
 	
 	if request.method == 'POST' and loginForm.validate_on_submit():
 		
-		user = User.query.filter_by(username=loginForm.username.data).first() #using ORM to query mysql database for user
+		user = User.query.filter_by(username=loginForm.username.data).first()
 		
 		if user is not None and check_password_hash(user.password, loginForm.password.data):
 			
@@ -78,17 +76,33 @@ def dash():
 	return render_template('dash.html')
 	
 
-
-#api route for main server user to generate a 
-@app.route('/add_node', methods=["POST"])
+@app.route('/add_client', methods=["GET", "POST"])
 @login_required
-def rando_gen():
-	'''Generates a random number between 1000000 and 10000000. Returns the number as json to a loged in requester.'''
+def add_client():
 	
-	global init_node_auth_code
+	newNodeForm = NewNodeForm()
 	
-	init_node_auth_code = randrange(1000000, 10000000)
-	return jsonify(auth_key=init_node_auth_code)
+	if request.method == "POST" and newNodeForm.validate_on_submit():
+		try:
+			node_name = newNodeForm.node_name.data
+			key=str(uuid1())
+			
+			new_node = Node(node_name,key)
+			
+			db.session.add(new_node)
+			db.session.commit()
+			
+			return jsonify(auth_key=key)
+		except Exception as e:
+			print e
+			db.session.rollback()
+			return "Internl Error"
+	
+	return render_template("add_client.html", newClientForm = newNodeForm)
+	
+@app.route("/add_node", methods=["GET", "POST"])
+def add_node():
+	return ""
 
 @app.route('/node_management', methods=["GET", "POST"])
 @login_required
@@ -107,7 +121,7 @@ def list_nodes():
 				except Exception as e:
 					print e
 		
-		return "List Added"
+		return "Group Added"
 		
 	nodes = Node.query.order_by(Node.node_id).all()
 		
@@ -167,12 +181,18 @@ def app_list():
 				db.session.add(appObj)
 				db.session.commit()
 				
+				#dd code to send list data to all servers to be saved
+				#this depends on the load balancer archc
+				
 				absolute_path = generate_app_list_path(list_name)
 				json.dump(new_app_list, open(absolute_path, "w"), indent=2)
-				return "List Created"
+				
+				#===================================================
+				
+				return "Application list Created"
 			except Exception as e:
 				db.session.rollback()
-				print e.args
+				print e
 				return "List could not be created"
 				
 		elif request.args["atn"] == "crt":
@@ -186,92 +206,6 @@ def app_list():
 	return render_template("display_app_list.html", app_lists = app_lists)
 
 ##############################################################
-
-################### Client api routes ########################
-@app.route('/node_init_auth', methods=['GET','POST'])
-def init_node_auth():
-	'''Route to setup a new node. This route allows a node to associate with the main server and retrieves an api key once the correct
-	auth code is provided.
-	
-	@return Api key on successful association; False if auth_key is incorrect 
-	and a blank json object on unathorized attempt to authenticate
-	'''
-	global init_node_auth_code
-	
-	if request.method == 'GET':
-		init_node_auth_code = None
-		return jsonify()
-		
-	data = request.get_json()
-	node_name = data['machine_name']
-	node_auth_code = int(data['node_auth_code'])
-	node_pass = data['new_pass']
-	
-	
-	if init_node_auth_code is None:
-		return jsonify()
-	
-	if init_node_auth_code != node_auth_code:
-		init_node_auth_code = None
-		return jsonify(key=False)
-	
-	api_key = key_gen()
-	
-	## add check for already existing node
-	node = Node.query.filter_by(node_name = node_name).first()
-	
-	if node != None:
-		return jsonify(key=None)
-		
-	node = Node(node_name, node_pass, api_key) # creates new node object for database insertion
-	
-	try:
-		#attempt to add node to database
-		db.session.add(node)
-		db.session.commit()
-		init_node_auth_code = None
-		return jsonify(key=api_key)
-	except Exception as e:
-		db.session.rollback()
-		return jsonify(key="error")
-		
-
-	
-@app.route('/app_valid', methods = ["GET", "POST"])
-def validate_cli_app():
-	request_key = request.json[0]['key']
-	
-	node = Node.query.filter_by(api_key = request_key).first()
-	
-	if node is None:
-		return jsonify()
-		
-	set_app_list = AppList.query.filter_by(list_id = node.app_list_id).first()
-	
-	if set_app_list is None:
-		return jsonify(message='no list')
-	
-	rec_app_list = request.json[1]["apps"]
-	
-	file_path = generate_app_list_path(set_app_list.name)
-	curr_app_list = json.loads(fileManager.read_file(file_path))['apps']  #loads list of apps from server FS
-	
-	curr_names = curr_app_list.keys()
-	change = dict()
-	to_install = dict()
-
-	for name in curr_names:
-		if rec_app_list.has_key(name): #check if the response has app key that we're looking for
-			if not rec_app_list[name] == curr_app_list[name]: #if it does then it'll check the version
-				change[name] = curr_app_list[name]
-		else:
-			to_install[name] = curr_app_list[name]
-	
-	return jsonify(install = to_install, changes=change) # will return new apps and versions to install and corrections to already installed applications
-	
-	
-	
-##########################################################################
 
 def generate_app_list_path(list_name):
 	return os.path.join(cwd,application_list_location, list_name+".json")
@@ -301,8 +235,3 @@ def add_header(response):
     response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
     response.headers['Cache-Control'] = 'public, max-age=0'
     return response
-
-### non web based functions
-def key_gen():
-	'''generates api key'''
-	return str(uuid1())
