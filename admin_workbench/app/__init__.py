@@ -30,7 +30,7 @@ login_manager.login_message_category = "info"  # customize the flash message cat
 
 cwd = os.path.join(os.getcwd(),"app")
 application_list_location = "node_app_list"
-APP_LIST_ZIP = "./static"+application_list_location+"/app_list.zip"
+APP_LIST_ZIP = "./app/static"+application_list_location+"/app_list.zip"
 
 SERVER_LIST = "./app/static/server_list.txt"
 
