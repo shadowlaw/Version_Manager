@@ -4,7 +4,8 @@ def read(fileName):
         with open(fileName, "r") as stream:
             return stream.read()
     except Exception as e:
-        pass
+        print e
+        return ''
         
 def write(fileName, data, overWrite=False):
     

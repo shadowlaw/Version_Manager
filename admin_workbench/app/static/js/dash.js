@@ -1,7 +1,7 @@
 $(document).ready(main());
 
 function eventSetup(){
-    $("#add_client")[0].addEventListener("click",function add(){
+    $("#add_node")[0].addEventListener("click",function add(){
         $("#request-container").load("add_client");
     });
     
@@ -13,8 +13,8 @@ function eventSetup(){
         $("#request-container").load("app_list_mgmt")
     });
     
-    $("#add_node")[0].addEventListener("click", function(){
-        $("#request-container").load("add_node")
+    $("#add_server")[0].addEventListener("click", function(){
+        $("#request-container").load("add_server")
     });
 }
 

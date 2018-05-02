@@ -20,7 +20,7 @@ class FileDistrib:
         if fileName != "" or fileName is not None:
             self.__filName__ = fileName
     
-    def send(self, relativeUrl):
+    def send(self, relativeUrl=""):
         
         if self.__fileName__ == "" or self.__fileName__ is None:
             return False

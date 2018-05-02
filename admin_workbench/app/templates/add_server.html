@@ -1,0 +1,20 @@
+<form>
+    <label>Server Address</label><br>
+    <input type="text" name="server_name"/><br>
+</form>
+<button class="btn btn-success" id="submit" style="margin-top: 3%">Add Server</button>
+
+<script>
+    $("#submit")[0].addEventListener("click", send);
+    
+    function send(){
+        
+        formData= $("form").serializeArray();
+        
+        $.post("add_server", formData).done(function(response){
+            $("#request-container")[0].innerHTML = response;
+        })
+        
+    }
+    
+</script>

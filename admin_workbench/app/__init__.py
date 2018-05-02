@@ -32,7 +32,9 @@ cwd = os.path.join(os.getcwd(),"app")
 application_list_location = "node_app_list"
 APP_LIST_ZIP = "./static"+application_list_location+"/app_list.zip"
 
-SERVER_LIST_ARRAY = read("static/server_list.txt").split(",")
+SERVER_LIST = "./app/static/server_list.txt"
+
+SERVER_LIST_ARRAY = read(SERVER_LIST).split(",")
 
 file_sender = FileDistrib(SERVER_LIST_ARRAY, fileName = APP_LIST_ZIP)
 

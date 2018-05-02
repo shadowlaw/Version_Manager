@@ -76,9 +76,9 @@ def dash():
 	return render_template('dash.html')
 	
 
-@app.route('/add_client', methods=["GET", "POST"])
+@app.route('/add_node', methods=["GET", "POST"])
 @login_required
-def add_client():
+def add_node():
 	
 	newNodeForm = NewNodeForm()
 	
@@ -98,11 +98,20 @@ def add_client():
 			db.session.rollback()
 			return "Internl Error"
 	
-	return render_template("add_client.html", newClientForm = newNodeForm)
+	return render_template("add_node.html", newClientForm = newNodeForm)
 	
-@app.route("/add_node", methods=["GET", "POST"])
-def add_node():
-	return ""
+@app.route("/add_server", methods=["GET", "POST"])
+def add_server():
+	
+	if request.method == "POST":
+		serverAddress = request.form['server_name']
+		write(app.config["SERVER_LIST"], ","+serverAddress)
+		
+		file_sender.addIP(serverAddress)
+		
+		return 'Address added'
+	
+	return render_template("add_server.html")
 
 @app.route('/node_management', methods=["GET", "POST"])
 @login_required
@@ -191,7 +200,7 @@ def app_list():
 				app_zip.write(absolute_path)
 				app_zip.close()
 				
-				
+				file_sender.send(relativeUrl="/node_list")
 				
 				return "Application list Created"
 			except Exception as e:

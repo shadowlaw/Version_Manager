@@ -1,0 +1,19 @@
+<form>
+    {{ newClientForm.csrf_token }}
+    {{ newClientForm.node_name.label }}
+    {{ newClientForm.node_name }}
+</form>
+<br>
+<button id="submit" class="btn btn-success">Add Client</button>
+
+<script>
+    $("#submit")[0].addEventListener("click", send);
+    
+    function send(){
+        
+        formData= $("form").serializeArray();
+        $.post("add_client", formData).done(function(response){
+            $("#request-container")[0].innerHTML = `Api Key: ${response.auth_key}`;
+        })
+    }
+</script>
