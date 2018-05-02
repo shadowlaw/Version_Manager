@@ -1,4 +1,4 @@
-from app import app, db, cwd, application_list_location
+from app import app, db, application_list_location
 
 from flask import jsonify, request
 
@@ -12,9 +12,11 @@ from werkzeug.utils import secure_filename
 import json
 import os
 
-@app.route("/")
-def home():
-	return "remote home"
+@app.route("/node_list", methods=["POST"])
+def update_node_list():
+    
+	print request.files
+	return ''
 
 @app.route('/app_valid', methods = ["GET", "POST"])
 def validate_cli_app():
@@ -50,4 +52,4 @@ def validate_cli_app():
 
 
 def generate_app_list_path(list_name):
-	return os.path.join(cwd,application_list_location, list_name+".json")
+	return os.path.join(application_list_location, list_name+".json")
