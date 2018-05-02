@@ -37,5 +37,5 @@ class FileDistrib:
             try:
                 requests.post(protocol+ipAddress+"/"+relativeUrl, files=file, headers={"enctype": "multipart/form-data"})
             except Exception as e:
-                print e
+                pass
 
