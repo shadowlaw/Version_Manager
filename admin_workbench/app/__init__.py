@@ -28,9 +28,9 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'  # necessary to tell Flask-Login what the default route is for the login page
 login_manager.login_message_category = "info"  # customize the flash message category
 
-cwd = os.path.join(os.getcwd(),"app")
-application_list_location = "node_app_list"
-APP_LIST_ZIP = "./app/static"+application_list_location+"/app_list.zip"
+APP_LIST_LOCATION = "./app/node_app_list"
+APP_LIST_ZIP_NAME = "app_list.zip"
+APP_LIST_ZIP = APP_LIST_LOCATION+"/"+APP_LIST_ZIP_NAME
 
 SERVER_LIST = "./app/static/server_list.txt"
 
