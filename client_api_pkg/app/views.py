@@ -1,4 +1,4 @@
-from app import app, db, application_list_location
+from app import app, db
 
 from flask import jsonify, request
 
@@ -8,6 +8,8 @@ from models import Node, AppList
 #secure filename import
 from werkzeug.utils import secure_filename
 
+from utils.zipfile import *
+
 #default python package imports
 import json
 import os
@@ -15,7 +17,14 @@ import os
 @app.route("/node_list", methods=["POST"])
 def update_node_list():
     
-	print request.files
+	app_list =  request.files['file']
+	filename = secure_filename(app_list.filename)
+	
+	app_list.save(os.path.join(app.config['APP_LIST_LOCATION'],filename))
+	
+	list_zip = ZipFile(os.path.join('./app/node_app_list', filename))
+	list_zip.extractall()
+	
 	return ''
 
 @app.route('/app_valid', methods = ["GET", "POST"])
@@ -52,4 +61,4 @@ def validate_cli_app():
 
 
 def generate_app_list_path(list_name):
-	return os.path.join(application_list_location, list_name+".json")
+	return os.path.join(app.config['APP_LIST_LOCATION'], list_name+".json")
