@@ -34,5 +34,8 @@ class FileDistrib:
             if("http" not in ipAddress.split(":")[0]):
                 protocol = "http://"
             
-            requests.post(protocol+ipAddress+"/"+relativeUrl, file)
+            try:
+                requests.post(protocol+ipAddress+"/"+relativeUrl, files=file, headers={"enctype": "multipart/form-data"})
+            except Exception as e:
+                print e
 

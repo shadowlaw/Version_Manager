@@ -200,7 +200,7 @@ def app_list():
 				app_zip.write(absolute_path)
 				app_zip.close()
 				
-				file_sender.send(relativeUrl="/node_list")
+				file_sender.send(relativeUrl="node_list")
 				
 				return "Application list Created"
 			except Exception as e:
@@ -221,7 +221,7 @@ def app_list():
 ##############################################################
 
 def generate_app_list_path(list_name):
-	return os.path.join(cwd,application_list_location, list_name+".json")
+	return os.path.join(app.config['APP_LIST_LOCATION'], list_name+".json")
 
 @app.route('/logout')
 @login_required
