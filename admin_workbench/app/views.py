@@ -1,5 +1,5 @@
 #app, sqlalchemy database object and login manager object imports
-from app import app, db, login_manager
+from app import app, db, login_manager, file_sender
 
 #basic flask imports
 from flask import render_template, request, redirect, url_for, flash, jsonify
@@ -27,8 +27,8 @@ import os
 from random import randrange
 from uuid import uuid1
 
-#user made modules
-import fileManager
+from utils.zipfile import *
+from utils.fileManager import write
 
 ################# web views #####################
 #root route for main server view
@@ -181,13 +181,17 @@ def app_list():
 				db.session.add(appObj)
 				db.session.commit()
 				
-				#dd code to send list data to all servers to be saved
-				#this depends on the load balancer archc
 				
 				absolute_path = generate_app_list_path(list_name)
 				json.dump(new_app_list, open(absolute_path, "w"), indent=2)
 				
 				#===================================================
+				#send app list to other servers
+				app_zip = ZipFile(app.config["APP_LIST_ZIP"], "a")
+				app_zip.write(absolute_path)
+				app_zip.close()
+				
+				
 				
 				return "Application list Created"
 			except Exception as e:
