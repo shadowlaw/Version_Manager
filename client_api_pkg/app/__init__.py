@@ -19,7 +19,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True  # added just to suppress a 
 #creating connection
 db = SQLAlchemy(app)
 
-application_list_location = "./app/node_app_list"
+APP_LIST_LOCATION = "./app/node_app_list"
 
 app.config.from_object(__name__)
 
