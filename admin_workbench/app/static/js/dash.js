@@ -2,7 +2,7 @@ $(document).ready(main());
 
 function eventSetup(){
     $("#add_node")[0].addEventListener("click",function add(){
-        $("#request-container").load("add_client");
+        $("#request-container").load("add_node");
     });
     
     $("#list_all_nodes")[0].addEventListener("click", function(){

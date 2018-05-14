@@ -12,7 +12,7 @@
     function send(){
         
         formData= $("form").serializeArray();
-        $.post("add_client", formData).done(function(response){
+        $.post("add_node", formData).done(function(response){
             $("#request-container")[0].innerHTML = `Api Key: ${response.auth_key}`;
         })
     }
