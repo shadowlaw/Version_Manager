@@ -35,7 +35,7 @@ class FileDistrib:
                 protocol = "http://"
             
             try:
-                requests.post(protocol+ipAddress+"/"+relativeUrl, files=file, headers={"enctype": "multipart/form-data"})
+                requests.post(protocol+ipAddress+"/"+relativeUrl, files=file, headers={"enctype": "multipart/form-data"}, timeout=(2,None))
             except Exception as e:
                 pass
 

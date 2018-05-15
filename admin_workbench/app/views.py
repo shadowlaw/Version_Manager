@@ -200,6 +200,7 @@ def app_list():
 				app_zip.write(absolute_path)
 				app_zip.close()
 				
+				#debug
 				file_sender.send(relativeUrl="node_list")
 				
 				return "Application list Created"

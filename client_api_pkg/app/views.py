@@ -27,13 +27,19 @@ def update_node_list():
 	
 	return ''
 
-@app.route('/app_valid', methods = ["GET", "POST"])
+@app.route('/app_valid', methods = ["POST"])
 def validate_cli_app():
-	request_key = request.get_json()['key']
+	
+	jsonObj = request.get_json()
+	
+	request_key = jsonObj['key']
 	
 	node = Node.query.filter_by(api_key = request_key).first()
 	
 	if node is None:
+		return jsonify()
+	
+	if node.node_group is None or node.app_list_id is None:
 		return jsonify()
 		
 	set_app_list = AppList.query.filter_by(list_id = node.app_list_id).first()
@@ -41,7 +47,7 @@ def validate_cli_app():
 	if set_app_list is None:
 		return jsonify(message='no list')
 	
-	rec_app_list = request.get_json()["apps"]
+	rec_app_list = jsonObj["apps"]
 	
 	file_path = generate_app_list_path(set_app_list.name)
 	curr_app_list = json.load(open(file_path,"r"))['apps']  #loads list of apps from server FS
