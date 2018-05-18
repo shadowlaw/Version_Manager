@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "clientconn.py", line 81, in <module>
+    main()
+  File "clientconn.py", line 75, in main
+    newClient()
+  File "clientconn.py", line 40, in newClient
+    response = requests.post(url, json=json.dumps(data1))
+  File "/usr/lib/python3/dist-packages/requests/api.py", line 88, in post
+    return request('post', url, data=data, **kwargs)
+  File "/usr/lib/python3/dist-packages/requests/api.py", line 44, in request
+    return session.request(method=method, url=url, **kwargs)
+TypeError: request() got an unexpected keyword argument 'json'

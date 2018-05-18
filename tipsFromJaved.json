@@ -1,0 +1,21 @@
+api routes
+"POST" -> "app_valid"
+recieved on success
+{
+    "install":
+    {
+        "app1":"version1",
+        "app2":"version2"
+    },
+    "changes":
+    {
+        "app1":"v1"
+    }
+}
+
+recieved on falure
+{}
+
+What is expected when a task is completed.
+
+What is expected when an old client has been restarted and wants to contact the server again.
