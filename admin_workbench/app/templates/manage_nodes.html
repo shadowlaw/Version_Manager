@@ -1,0 +1,57 @@
+<h3>Node Management</h3>
+<div id="node-container">
+    <div style="margin-top: 1%;" class="row btn-options">
+        <button id="node_assoc_list" class="btn btn-success col-md-2">Add list to group</button>
+    </div>
+    
+    <h5 style="margin-top: 1%;">
+        Add a node to a node group
+    </h5>
+    <div class="row">
+        <span class="col-md-4"> Machine name </span>
+        <span class="col-md-4"> Assigned to list </span>
+        <span class="col-md-4" style="text-align: center;"> Add </span>
+    </div>
+    <form>
+        {% for node in nodes %}
+        <div class="node-container row">
+            <span class="col-md-4">{{ node.name }}</span>
+            <span class="col-md-4"> {{ node.app_list_id }} </span>
+            <input class="col-md-4" type="checkbox" name="{{ node.name }}"/>
+        </div>
+        {% endfor %}
+        <div class="row" style="margin-top: 1%;">
+            <label for="node_group_name" style="margin-right: 5px"> Group Name </label>
+            <input type="text" id="node_group_name" class="col-md-4" style="margin-right: 1%;"/>
+            <input type="submit" value="Create Group" class="col-sm-2 btn btn-success"/>
+        </div>
+    </form>
+</div>
+<script>
+    $("input[type=submit]")[0].addEventListener("click", send);
+    $("#node_assoc_list")[0].addEventListener("click", load_node_list_assoc)
+    
+    function load_node_list_assoc(event){
+        event.preventDefault();
+        $("#node-container").load("/node_list_assoc");
+        
+    }
+    
+    
+    function send(event){
+        event.preventDefault();
+        let list_name = $("input[type=text]")[0].value;
+        let checked_box = $("form").serializeArray();
+        
+        $.ajax({
+            url: "node_management",
+            method: "POST",
+            data: JSON.stringify({name: list_name, nodes: checked_box}),
+            contentType: "application/json",
+            async: false
+        }).done(function(response){
+            $("#request-container")[0].innerHTML = response;
+        });
+    }
+    
+</script>

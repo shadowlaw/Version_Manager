@@ -1,0 +1,59 @@
+<h4>Create List</h4>
+
+<input id="add" class="col-sm-2 btn btn-success" style="margin-bottom: 1%;" type="button" value="Add Field"/>
+
+<div class="row" style="margin-bottom: 1%;">
+    <span class="col-md-4"> Applicaton name </span>
+    <span class="col-md-4"> Version </span>
+</div>
+<form>
+    <div class="row app-item" style="margin-bottom: 1%;">
+        <input class = "col-md-4" type="text" name="app" style="margin-right: 1%;"/>
+        <input class = "col-md-4" type="text" name="version"/>
+    </div>
+    <label style="margin-top: 2%;" for="list_name">List Name </label>
+    <div class="row">
+        <input type="text" class="col-md-4" style="margin-right: 1%;" id="list_name"/>
+        <input type="submit" class="btn btn-success col-md-2" value="submit List"/>
+    </div>
+</form>
+
+<script>
+    
+    $("#add")[0].addEventListener("click", add_app_fields);
+    $("input[type=submit]")[0].addEventListener('click', send);
+    
+    function add_app_fields(){
+        $(".app-item").after("    <div class='row app-item' style='margin-bottom: 1%;'><input class = 'col-md-4' type='text' name='app' style='margin-right: 1%;'/> <input class = 'col-md-4' type='text' name='version'/></div>");
+    }
+    
+    function send(event){
+        event.preventDefault();
+        let list_data = serialize_page_data()
+        let name = $("#list_name")[0].value;
+        
+        $.ajax({
+            url: "app_list_mgmt?atn=crt",
+            method: "POST",
+            data: JSON.stringify({list_name: name, app_data: list_data}),
+            contentType: "application/json"
+        }).done(function(response){
+           $("#list-container")[0].innerHTML=response;
+        });
+    }
+    
+    function serialize_page_data(){
+    	let apps = $("input[name=app]");
+    	let versions = $("input[name=version]");
+    	let result = [];
+    	for(let i=0;i<apps.length; i++){
+    	    let data = {};
+    		data.app_name = apps[i].value
+    		data.version = versions[i].value
+    		result.push(data);
+    		
+    	}
+    
+    	return result;
+    }
+</script>

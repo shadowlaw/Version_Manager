@@ -1,0 +1,27 @@
+<h3>Applicaton List Management</h3>
+<div id="list-container">
+    <h5 style="margin-top: 1%;" >Application list</h5>
+
+    <div class="row">
+        <input id="create" type="button" class="col-md-2 btn btn-success" value="Create List"/>
+    </div>
+    
+    <div class ="row" style="margin-bottom: 1%">
+        <span class="col-sm-1"> List ID </span>
+        <span class="col-md-4"> List Name</span>
+    </div>
+    {% for list in app_lists %}
+        <div class="list-container row" style="margin-bottom:1%;">
+            <span class="col-sm-1">{{ list.list_id }}</span>
+            <span class="col-md-4">{{ list.name }}</span>
+            <input type="button" class="col-md-2 btn btn-primary" style="margin-right: 1%" value="view"/>
+            <input type="button" class="col-md-2 btn btn-danger" value="Delete"/>
+        </div>
+    {% endfor %}
+</div>
+
+<script>
+    $("#create")[0].addEventListener("click", function(){
+        $("#list-container").load("app_list_mgmt?atn=crt");
+    });
+</script>

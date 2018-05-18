@@ -1,0 +1,7 @@
+argparse==1.2.1
+pathlib==1.0.1
+pathlib2==2.3.2
+requests==2.9.2
+scandir==1.7
+six==1.11.0
+wsgiref==0.1.2

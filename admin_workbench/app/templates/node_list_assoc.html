@@ -1,0 +1,49 @@
+<div class="row">
+    <div class="col-md-6" style="border-right: 1px solid black;">
+        <div class="row">
+            <label class="col-md-6">List ID</label>
+            <label class="col-md-6">List Name</label>
+        </div>
+        {% for app_list in app_lists %}
+            <div class="row">
+                <label class="col-md-6">{{ app_list.list_id }}</label>
+                <label class="col-md-6">{{ app_list.name }}</label>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <div class="col-md-6" style="border-left: 1px solid black;">
+            <div class="row">
+            <label class="col-md-6">Group Name</label>
+            <label class="col-md-6">List ID Number</label>
+        </div>
+        
+        {% for group_list in group_lists %}
+            <div class="row">
+                <label class="col-md-7">{{ group_list }}</label>
+                <input type="number" name="{{ group_list }}" min="1" max="{{ list_length }}" class=" col-md-4 list-val" style="margin-bottom: 1%"/>
+            </div>
+        {% endfor %}
+        <br>
+        <button id="grp-sub" class="col-sm-2 btn btn-success">Submit</button>
+    </div>
+</div>
+
+
+<script>
+    $("#grp-sub")[0].addEventListener("click", send);
+    
+    function send(){
+        let group_data = $(".list-val").serializeArray().filter((obj)=>{return obj.value >0;});
+        
+        $.ajax({
+            url: "node_list_assoc",
+            method: "POST",
+            data: JSON.stringify({grouping_data: group_data}),
+            contentType: "application/json"
+        }).done(function(response){
+            $("#request-container")[0].innerHTML=response;
+        });
+    }
+    
+</script>
