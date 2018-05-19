@@ -28,7 +28,7 @@ class bcolors: #SOME COLOUR TO TERMINAL
 '''
 
 '''
-def newClient():
+def newClient(): ##=new cient
     HOST= raw_input("Please enter HOST address, without any routes: ")
     AuthKey= raw_input("Please enter Authentication Key: ")
     print(bcolors.OKGREEN +"Contacting server"+bcolors.ENDC )
