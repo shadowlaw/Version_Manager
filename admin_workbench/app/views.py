@@ -28,7 +28,7 @@ from random import randrange
 from uuid import uuid1
 
 from utils.zipfile import *
-from utils.fileManager import write
+from utils.fileManager import write, exists
 
 ################# web views #####################
 #root route for main server view
@@ -136,8 +136,10 @@ def list_nodes():
 		return "Group Added"
 		
 	nodes = Node.query.order_by(Node.node_id).all()
-		
-	return render_template("manage_nodes.html", nodes=nodes)
+	
+	gl = get_all_groups()
+
+	return render_template("manage_nodes.html", nodes=nodes, group_list=gl)
 
 @app.route("/node_list_assoc", methods=["GET", "POST"])
 @login_required
@@ -157,15 +159,8 @@ def node_list_assoc():
 					print e
 					
 		return redirect(url_for("list_nodes"))
-	
-	sql ="select node_group from nodes group by node_group;"
-	cur=db.engine.execute(sql)
-	results = cur.fetchall()
-	
-	group_list=[]
-	
-	for item in results:
-		group_list.append(item[0])
+
+	group_list = get_all_groups()
 		
 	app_list = AppList.query.order_by(AppList.list_id).all()
 	
@@ -203,7 +198,8 @@ def app_list():
 				app_zip.write(absolute_path)
 				app_zip.close()
 				
-				if file_sender.file_exist():
+				if not file_sender.isListEmpty():
+
 					file_sender.send_all(relativeUrl="node_list")
 					return "Application list created and sent"
 				
@@ -221,9 +217,22 @@ def app_list():
 	
 	app_lists = AppList.query.order_by(AppList.list_id).all()
 	
+	
 	return render_template("display_app_list.html", app_lists = app_lists)
 
 ##############################################################
+
+def get_all_groups():
+	sql ="select node_group from nodes group by node_group;"
+	cur=db.engine.execute(sql)
+	results = cur.fetchall()
+	
+	group_list=[]
+	
+	for item in results:
+		group_list.append(item[0])
+
+	return group_list
 
 def generate_app_list_path(list_name):
 	return os.path.join(app.config['APP_LIST_LOCATION'], list_name+".json")

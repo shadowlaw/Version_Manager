@@ -1,11 +1,12 @@
 <h3>Node Management</h3>
 <div id="node-container">
     <div style="margin-top: 1%;" class="row btn-options">
-        <button id="node_assoc_list" class="btn btn-success col-md-2">Add list to group</button>
+        <button id="node_assoc_list" class="btn btn-success col-md-2" style="margin-right: 1%;"">Add list to group</button>
+        <input id="AEL" type="button" class="col-md-3 btn btn-success" value="Show Existing Group List" style="margin-right: 1%;"/>
     </div>
     
     <h5 style="margin-top: 1%;">
-        Add a node to a node group
+        Client-Group Management
     </h5>
     <div class="row">
         <span class="col-md-4"> Machine name </span>
@@ -23,13 +24,28 @@
         <div class="row" style="margin-top: 1%;">
             <label for="node_group_name" style="margin-right: 5px"> Group Name </label>
             <input type="text" id="node_group_name" class="col-md-4" style="margin-right: 1%;"/>
-            <input type="submit" value="Create Group" class="col-sm-2 btn btn-success"/>
+            <input type="submit" value="Submit" class="col-sm-2 btn btn-success"/>
         </div>
     </form>
+
+    <div id="ext_lst" style="display: none; margin-top: 3%"">
+        <label>Select a Group name</label><br>
+
+        {% for group in group_list%}
+            <ol>
+                <li>{{ group }}</li>
+            </ol>
+        {% endfor %}
+    </div>
+
 </div>
 <script>
     $("input[type=submit]")[0].addEventListener("click", send);
     $("#node_assoc_list")[0].addEventListener("click", load_node_list_assoc)
+
+    $("#AEL")[0].addEventListener("click", function(){
+        $("#ext_lst").fadeToggle("slow")
+    });
     
     function load_node_list_assoc(event){
         event.preventDefault();

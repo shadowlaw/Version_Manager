@@ -10,6 +10,8 @@ class FileDistrib:
         self.__ip_list__ = ip_list
         self.__fileName__ = fileName
 
+    def isListEmpty(self):
+        return self.__ip_list__ == ['']
 
     def setIpList(self, ip_list):
         self.__ip_list__ = ip_list
@@ -51,7 +53,7 @@ class FileDistrib:
     
     def file_exist(self):
             
-        if not os.path.exists(self.__filName__):
+        if not os.path.exists(self.__fileName__):
             return False
             
         return True
