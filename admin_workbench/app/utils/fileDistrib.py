@@ -1,4 +1,6 @@
 import requests
+import os
+
 
 class FileDistrib:
     __ip_list__ = []
@@ -24,6 +26,9 @@ class FileDistrib:
         
         if self.__fileName__ == "" or self.__fileName__ is None:
             return False
+            
+        if not os.path.exists(self.__filName__):
+            return False
 
         for ipAddress in self.__ip_list__:
             
@@ -41,4 +46,6 @@ class FileDistrib:
             	stream.close()
             except Exception as e:
                 pass
+            
+        return True
 
