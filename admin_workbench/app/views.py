@@ -195,12 +195,11 @@ def app_list():
 				json.dump(new_app_list, open(absolute_path, "w"), indent=2)
 				
 				#===================================================
-				#send app list to other servers
+				
 				app_zip = ZipFile(app.config["APP_LIST_ZIP"], "a")
 				app_zip.write(absolute_path)
 				app_zip.close()
 				
-				#debug
 				file_sender.send(relativeUrl="node_list")
 				
 				return "Application list Created"
