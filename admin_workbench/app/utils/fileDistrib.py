@@ -36,7 +36,7 @@ class FileDistrib:
             	stream = open(self.__fileName__, "rb")
             	file = {"file": stream}
             	
-            	requests.post(protocol+ipAddress+"/"+relativeUrl, files=file, headers={"enctype": "multipart/form-data"})
+            	requests.post(protocol+ipAddress+"/"+relativeUrl, files=file, headers={"enctype": "multipart/form-data"}, timeout=(3, None))
 
             	stream.close()
             except Exception as e:
