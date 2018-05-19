@@ -53,7 +53,7 @@ def newClient():
                     #THE RESPONSE IS THE API KEY AND IS STORED IN PLAIN TEXT
                     
                     AuthF= open("authkey.txt", "w")
-                    AuthF.write(AuthKey)
+                    AuthF.write(AuthKey+"\n")
                     AuthF.write(HOST)
                     AuthF.close()
                     command= apps.makeUpdates(response.json())
@@ -141,7 +141,7 @@ def oldClient():
                     
                 elif response.json()=={}:
                     print(bcolors.FAIL+"Sorry, the authentication failed, please try again.")
-                    ANSWER= raw_input("If you'd like to re"+bcolors.ENDC)
+                    ANSWER= raw_input("Would you like to retry with a new host(Y/N) "+bcolors.ENDC)
                     if ANSWER.lower()=="y":
                         HOST= raw_input("Please enter HOST address, without any routes: ")
                         AuthKey= raw_input("Please enter Authentication Key: ")
