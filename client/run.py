@@ -29,8 +29,8 @@ class bcolors: #SOME COLOUR TO TERMINAL
 
 '''
 def newClient():
-    HOST= raw_raw_input("Please enter HOST address, without any routes: ")
-    AuthKey= raw_raw_input("Please enter Authentication Key: ")
+    HOST= raw_input("Please enter HOST address, without any routes: ")
+    AuthKey= raw_input("Please enter Authentication Key: ")
     print(bcolors.OKGREEN +"Contacting server"+bcolors.ENDC )
     bashCommand = "hostname"
     '''process = subprocess.Popen(bashCommand, stdout=subprocess.PIPE)
