@@ -109,6 +109,9 @@ def add_server():
 		
 		file_sender.addIP(serverAddress)
 		
+		if file_sender.file_exist():
+			file_sender.send(serverAddress, relativeUrl="node_list")
+		
 		return 'Address added'
 	
 	return render_template("add_server.html")
@@ -200,9 +203,11 @@ def app_list():
 				app_zip.write(absolute_path)
 				app_zip.close()
 				
-				file_sender.send(relativeUrl="node_list")
+				if file_sender.file_exist():
+					file_sender.send_all(relativeUrl="node_list")
+					return "Application list created and sent"
 				
-				return "Application list Created"
+				return "Application list created but no servers available for distribution"
 			except Exception as e:
 				db.session.rollback()
 				print e
