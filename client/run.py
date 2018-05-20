@@ -50,10 +50,11 @@ def newClient():
                 #, headers={"Content-Type":"application/json
                 if response.json() != {}:
                     print("The server sent a response:")
+                    print(response.json())
                     #THE RESPONSE IS THE API KEY AND IS STORED IN PLAIN TEXT
                     
                     AuthF= open("authkey.txt", "w")
-                    AuthF.write(AuthKey+"\n")
+                    AuthF.write(AuthKey+";")
                     AuthF.write(HOST)
                     AuthF.close()
                     command= apps.makeUpdates(response.json())
@@ -90,14 +91,14 @@ def newClient():
         #http://whatevermusthappenismadness.com/
 #Run this is the client is already has an authkey        
 def oldClient():
-    lst=[]
+    theString=""
     #pull up authkey and host address from 
     with open('authkey.txt') as AF:
         for line in AF:
-            lst+=[line]
+            theString+=line
     
-    AuthKey = lst[0]
-    HOST = lst[1]
+    
+    AuthKey, HOST = theString.split(";")
     task = Path('task.txt')
     command=""
     while True:
@@ -122,6 +123,7 @@ def oldClient():
                 serverSuccessfulOnce=True
                 if response.json() != {}:
                     print("The server sent a response:")
+                    print(response.json())
                     #THE RESPONSE IS THE API KEY AND IS STORED IN PLAIN TEXT
                     
                     AuthF= open("authkey.txt", "w")
