@@ -168,6 +168,9 @@ def list_nodes():
 		tempDict["list_id"]=item[1]
 
 		nodes.append(tempDict)
+	
+	if nodes == []:
+		nodes = Node.query.all()
 
 	return render_template("manage_nodes.html", nodes=nodes, group_list=gl)
 
