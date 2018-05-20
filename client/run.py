@@ -54,7 +54,7 @@ def newClient():
                     #THE RESPONSE IS THE API KEY AND IS STORED IN PLAIN TEXT
                     
                     AuthF= open("authkey.txt", "w")
-                    Authkey+=";"
+                    AuthKey+=";"
                     AuthF.write(AuthKey)
                     AuthF.write(HOST)
                     AuthF.close()
