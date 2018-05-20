@@ -3,6 +3,12 @@ import subprocess
 import json
 import os
 import urllib2
+import sys
+
+from colorama import init
+init(strip=not sys.stdout.isatty()) # strip colors if stdout is redirected
+from termcolor import cprint 
+from pyfiglet import figlet_format
 
 '''
 Should refactor to make it an object that can be used for all basic app, version request and is there an available update, etc
@@ -44,7 +50,9 @@ For each line of output:
 When dictionary is complete, convert to JSON and at pump to server.
 
 '''
-
+def printMenu():
+    cprint(figlet_format('NETDATE', font='smisome1'),
+       'yellow', 'on_red', attrs=['bold'])
 
 def getApps():
     #Runs the command to show all apps and their version

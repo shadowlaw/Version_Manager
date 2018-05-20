@@ -160,6 +160,7 @@ def oldClient():
     
 def main():
     # if authkey file doesn't exists, say you're new to server.
+    apps.printMenu()
     my_file= Path("authkey.txt")
     if my_file.is_file():
         # take the authentication key stored and use it for any response
