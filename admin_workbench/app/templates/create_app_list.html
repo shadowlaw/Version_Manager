@@ -50,9 +50,15 @@
     	for(let i=0;i<apps.length; i++){
     	    let data = {};
     	    
-    	    if (apps[i].value != "" && versions[i].value!=''){
+    	    if (apps[i].value != ""){
+    	        
     	        data.app_name = apps[i].value
-        		data.version = versions[i].value
+    	        
+    	        if(versions[i].value==''){
+    	            data.value = 0
+    	        }else{
+    	            data.version = versions[i].value
+    	        }
         		result.push(data);
     	    }
     	}

@@ -3,7 +3,7 @@ from app import app, db
 from flask import jsonify, request
 
 #model imports for user and network nodes (machines for version control)
-from models import Node, AppList
+from models import *
 
 #secure filename import
 from werkzeug.utils import secure_filename
@@ -39,13 +39,20 @@ def validate_cli_app():
 	
 	node = Node.query.filter_by(api_key = request_key).first()
 	
-	if node is None:
-		return jsonify()
-	
-	if node.node_group is None or node.app_list_id is None:
+	if node is None or node.group_id is None:
 		return jsonify()
 		
-	set_app_list = AppList.query.filter_by(list_id = node.app_list_id).first()
+	group = NodeGroup.query.filter_by(group_id=node.group_id).first()
+	
+	if group is None:
+		return jsonify()
+		
+	group_list_assoc = GroupListAssoc.query.filter_by(group_id=group.group_id).first()
+	
+	if group_list_assoc is None:
+		return jsonify()
+		
+	set_app_list = AppList.query.filter_by(list_id = group_list_assoc.list_id).first()
 	
 	if set_app_list is None:
 		return jsonify(message='no associated list')
