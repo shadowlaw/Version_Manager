@@ -17,7 +17,7 @@
         {% for node in nodes %}
         <div class="node-container row">
             <span class="col-md-4">{{ node.name }}</span>
-            <span class="col-md-4"> {{ node.app_list_id }} </span>
+            <span class="col-md-4"> {{ node.list_id }} </span>
             <input class="col-md-4" type="checkbox" name="{{ node.name }}"/>
         </div>
         {% endfor %}

@@ -11,7 +11,7 @@ from flask_login import login_user, logout_user, current_user, login_required
 from forms import LoginForm, NewNodeForm
 
 #model imports for user and network nodes (machines for version control)
-from models import User, Node, AppList
+from models import *
 
 #password hashing checking functions
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -101,6 +101,7 @@ def add_node():
 	return render_template("add_node.html", newClientForm = newNodeForm)
 	
 @app.route("/add_server", methods=["GET", "POST"])
+@login_required
 def add_server():
 	
 	if request.method == "POST":
@@ -123,21 +124,50 @@ def list_nodes():
 	if request.method == "POST":
 		data = request.json
 		group_name = data["name"]
+
+		group = NodeGroup.query.filter_by(group_name = group_name).first()
 		
-		for node in data["nodes"]:
-			if node["value"] == "on":
-				node = Node.query.filter_by(name = node["name"]).first()
-				node.node_group = group_name
-				try:
-					db.session.commit()
-				except Exception as e:
-					print e
-		
-		return "Group Added"
+		if group is None:
+			group = NodeGroup(group_name)
+			
+
+			try:
+				db.session.add(group)
+				db.session.commit()
+			except Exception as e:
+				db.session.rollback()
+				print e
+					
+		if data["nodes"]:
+			for node in data["nodes"]:
+				if node["value"] == "on":
+					node = Node.query.filter_by(name = node["name"]).first()
+					node.group_id = group.group_id
+
+			try:
+				db.session.commit()
+			except Exception as e:
+				db.session.rollback()
+				print e
+			
+			return "Group Updated"
 		
 	nodes = Node.query.order_by(Node.node_id).all()
 	
 	gl = get_all_groups()
+
+	sql ="select name, list_id from (select nodes.group_id, nodes.name from node_group join nodes on node_group.group_id = nodes.group_id) as A join group_list_assoc on A.group_id=group_list_assoc.group_id"
+	cur=db.engine.execute(sql)
+	results = cur.fetchall()
+	
+	nodes=[]
+	
+	for item in results:
+		tempDict = dict()
+		tempDict["name"]=item[0]
+		tempDict["list_id"]=item[1]
+
+		nodes.append(tempDict)
 
 	return render_template("manage_nodes.html", nodes=nodes, group_list=gl)
 
@@ -149,16 +179,19 @@ def node_list_assoc():
 		associationArray = request.get_json()["grouping_data"]
 		
 		for obj in associationArray:
-			working_node_list = Node.query.filter_by(node_group=obj["name"]).all()
-			
-			for node in working_node_list:
-				node.app_list_id = obj["value"]
+			group = NodeGroup.query.filter_by(group_name=obj["name"]).first()
+			app_list = AppList.query.filter_by(list_id=obj["value"]).first()
+
+			if group is not None and app_list is not None:
+
+				assoc = GroupListAssoc(app_list.list_id, group.group_id)
 				try:
+					db.session.add(assoc)
 					db.session.commit()
 				except Exception as e:
 					print e
 					
-		return redirect(url_for("list_nodes"))
+				return redirect(url_for("list_nodes"))
 
 	group_list = get_all_groups()
 		
@@ -223,14 +256,12 @@ def app_list():
 ##############################################################
 
 def get_all_groups():
-	sql ="select node_group from nodes group by node_group;"
-	cur=db.engine.execute(sql)
-	results = cur.fetchall()
+	results = NodeGroup.query.all()
 	
 	group_list=[]
 	
 	for item in results:
-		group_list.append(item[0])
+		group_list.append(item.group_name)
 
 	return group_list
 
