@@ -1,3 +1,5 @@
+import os
+
 def read(fileName):
     
     try:
@@ -16,3 +18,10 @@ def write(fileName, data, overWrite=False):
         
     with open(fileName, mode) as stream:
         stream.write(data)
+
+
+def exists(file_path):
+    if os.path.exists:
+        return True
+
+    return False

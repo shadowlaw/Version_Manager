@@ -5,13 +5,25 @@
 
 {% block main %}
 
-<div class="option-container">
-    <label id='add_node' class="button col-md-2">Add Node</label>
-    <label id='add_server' class="button col-md-2">Add Server</label>
-    <label id='list_all_nodes' class="button col-md-2">Manage Clients</label>
-    <label id='app-list' class="button col-md-3">Manage App Lists</label>
+<div class="option-container row">
+    <button id='add_node' class="btn btn-success col-md-2">Add Client</button>
+    <button id='add_server' class="btn btn-success col-md-2" style="margin-left: 1%;">Add Server</button>
+    <button id='list_all_nodes' class="btn btn-success col-md-2" style="margin-left: 1%;">Manage Clients</button>
+    <button id='app-list' class="btn btn-success col-md-2" style="margin-left: 1%;">Manage App Lists</button>
 </div>
-<div id="request-container"></div>
+<div id="request-container" style="margin-top: 5%;">
+	<h2>Home Page</h2>
+	<h3>Tips</h3>
+
+		Select an option from the menu above. Options:
+		<ol>
+			<li>Add Client: Allows you to add a new client</li>
+			<li>Add Server: Allows you to add a new back end server</li>
+			<li>Manage Clients: Allows you to manage the curent list of clients</li>
+			<li>Manage App Lists: Allows you to manage the current application lists</li>
+		</ol>
+	
+</div>
 {% endblock %}
 
 

@@ -24,7 +24,8 @@
     $("input[type=submit]")[0].addEventListener('click', send);
     
     function add_app_fields(){
-        $(".app-item").after("    <div class='row app-item' style='margin-bottom: 1%;'><input class = 'col-md-4' type='text' name='app' style='margin-right: 1%;'/> <input class = 'col-md-4' type='text' name='version'/></div>");
+        $(".app-item").append(`<input class = 'col-md-4' type='text' name='app' style='margin-right: 1%; margin-top: 1%'/>
+                                <input class = 'col-md-4' type='text' name='version' style='margin-top: 1%'/>`);
     }
     
     function send(event){
@@ -48,10 +49,12 @@
     	let result = [];
     	for(let i=0;i<apps.length; i++){
     	    let data = {};
-    		data.app_name = apps[i].value
-    		data.version = versions[i].value
-    		result.push(data);
-    		
+    	    
+    	    if (apps[i].value != "" && versions[i].value!=''){
+    	        data.app_name = apps[i].value
+        		data.version = versions[i].value
+        		result.push(data);
+    	    }
     	}
     
     	return result;

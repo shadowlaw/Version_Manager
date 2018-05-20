@@ -11,7 +11,7 @@ from flask_login import login_user, logout_user, current_user, login_required
 from forms import LoginForm, NewNodeForm
 
 #model imports for user and network nodes (machines for version control)
-from models import User, Node, AppList
+from models import *
 
 #password hashing checking functions
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -28,7 +28,7 @@ from random import randrange
 from uuid import uuid1
 
 from utils.zipfile import *
-from utils.fileManager import write
+from utils.fileManager import write, exists
 
 ################# web views #####################
 #root route for main server view
@@ -101,6 +101,7 @@ def add_node():
 	return render_template("add_node.html", newClientForm = newNodeForm)
 	
 @app.route("/add_server", methods=["GET", "POST"])
+@login_required
 def add_server():
 	
 	if request.method == "POST":
@@ -108,6 +109,9 @@ def add_server():
 		write(app.config["SERVER_LIST"], ","+serverAddress)
 		
 		file_sender.addIP(serverAddress)
+		
+		if file_sender.file_exist():
+			file_sender.send(serverAddress, relativeUrl="node_list")
 		
 		return 'Address added'
 	
@@ -120,21 +124,52 @@ def list_nodes():
 	if request.method == "POST":
 		data = request.json
 		group_name = data["name"]
+
+		group = NodeGroup.query.filter_by(group_name = group_name).first()
 		
-		for node in data["nodes"]:
-			if node["value"] == "on":
-				node = Node.query.filter_by(name = node["name"]).first()
-				node.node_group = group_name
-				try:
-					db.session.commit()
-				except Exception as e:
-					print e
-		
-		return "Group Added"
+		if group is None:
+			group = NodeGroup(group_name)
+			
+
+			try:
+				db.session.add(group)
+				db.session.commit()
+			except Exception as e:
+				db.session.rollback()
+				print e
+					
+		if data["nodes"]:
+			for node in data["nodes"]:
+				if node["value"] == "on":
+					node = Node.query.filter_by(name = node["name"]).first()
+					node.group_id = group.group_id
+
+			try:
+				db.session.commit()
+			except Exception as e:
+				db.session.rollback()
+				print e
+			
+			return "Group Updated"
 		
 	nodes = Node.query.order_by(Node.node_id).all()
-		
-	return render_template("manage_nodes.html", nodes=nodes)
+	
+	gl = get_all_groups()
+
+	sql ="select name, list_id from (select nodes.group_id, nodes.name from node_group join nodes on node_group.group_id = nodes.group_id) as A join group_list_assoc on A.group_id=group_list_assoc.group_id"
+	cur=db.engine.execute(sql)
+	results = cur.fetchall()
+	
+	nodes=[]
+	
+	for item in results:
+		tempDict = dict()
+		tempDict["name"]=item[0]
+		tempDict["list_id"]=item[1]
+
+		nodes.append(tempDict)
+
+	return render_template("manage_nodes.html", nodes=nodes, group_list=gl)
 
 @app.route("/node_list_assoc", methods=["GET", "POST"])
 @login_required
@@ -144,25 +179,21 @@ def node_list_assoc():
 		associationArray = request.get_json()["grouping_data"]
 		
 		for obj in associationArray:
-			working_node_list = Node.query.filter_by(node_group=obj["name"]).all()
-			
-			for node in working_node_list:
-				node.app_list_id = obj["value"]
+			group = NodeGroup.query.filter_by(group_name=obj["name"]).first()
+			app_list = AppList.query.filter_by(list_id=obj["value"]).first()
+
+			if group is not None and app_list is not None:
+
+				assoc = GroupListAssoc(app_list.list_id, group.group_id)
 				try:
+					db.session.add(assoc)
 					db.session.commit()
 				except Exception as e:
 					print e
 					
-		return redirect(url_for("list_nodes"))
-	
-	sql ="select node_group from nodes group by node_group;"
-	cur=db.engine.execute(sql)
-	results = cur.fetchall()
-	
-	group_list=[]
-	
-	for item in results:
-		group_list.append(item[0])
+				return redirect(url_for("list_nodes"))
+
+	group_list = get_all_groups()
 		
 	app_list = AppList.query.order_by(AppList.list_id).all()
 	
@@ -195,15 +226,17 @@ def app_list():
 				json.dump(new_app_list, open(absolute_path, "w"), indent=2)
 				
 				#===================================================
-				#send app list to other servers
+				
 				app_zip = ZipFile(app.config["APP_LIST_ZIP"], "a")
 				app_zip.write(absolute_path)
 				app_zip.close()
 				
-				#debug
-				file_sender.send(relativeUrl="node_list")
+				if not file_sender.isListEmpty():
+
+					file_sender.send_all(relativeUrl="node_list")
+					return "Application list created and sent"
 				
-				return "Application list Created"
+				return "Application list created but no servers available for distribution"
 			except Exception as e:
 				db.session.rollback()
 				print e
@@ -217,9 +250,20 @@ def app_list():
 	
 	app_lists = AppList.query.order_by(AppList.list_id).all()
 	
+	
 	return render_template("display_app_list.html", app_lists = app_lists)
 
 ##############################################################
+
+def get_all_groups():
+	results = NodeGroup.query.all()
+	
+	group_list=[]
+	
+	for item in results:
+		group_list.append(item.group_name)
+
+	return group_list
 
 def generate_app_list_path(list_name):
 	return os.path.join(app.config['APP_LIST_LOCATION'], list_name+".json")
