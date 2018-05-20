@@ -210,6 +210,10 @@ def app_list():
 	if request.args.to_dict() != dict():
 		if request.args["atn"] == "crt" and request.method == "POST":
 			list_data = request.get_json()["app_data"]
+			
+			if list_data ==[]:
+				return "Application list cannot be empty"
+			
 			list_name = secure_filename(request.get_json()["list_name"])
 			new_app_list = dict()
 			
