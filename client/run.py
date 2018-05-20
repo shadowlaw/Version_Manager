@@ -36,7 +36,7 @@ def newClient():
     '''process = subprocess.Popen(bashCommand, stdout=subprocess.PIPE)
     output, error = process.communicate()
     machine_name= output'''
-    serverSuccessfulOnce=False 
+    serverSuccessfulOnce=False
     while True:
         appz= apps.getApps()
         data = {
@@ -126,11 +126,6 @@ def oldClient():
                     print("The server sent a response:")
                     print(response.json())
                     #THE RESPONSE IS THE API KEY AND IS STORED IN PLAIN TEXT
-                    
-                    AuthF= open("authkey.txt", "w")
-                    AuthF.write(AuthKey)
-                    AuthF.write(HOST)
-                    AuthF.close()
                     command= apps.makeUpdates(response.json())
                     #save task in case of powerloss or reboot
                     TFile= open("task.txt", "w")
