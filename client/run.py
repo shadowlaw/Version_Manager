@@ -1,7 +1,6 @@
 #Client initiation
 
 
-#BASIC HELLO SERVER, REFACTORING TO FIT OUR NEEDS, UNFINISHED!!!!
 import socket, sys
 import json
 import requests
@@ -32,7 +31,6 @@ def newClient():
     HOST= raw_input("Please enter HOST address, without any routes: ")
     AuthKey= raw_input("Please enter Authentication Key: ")
     print(bcolors.OKGREEN +"Contacting server"+bcolors.ENDC )
-    bashCommand = "hostname"
     '''process = subprocess.Popen(bashCommand, stdout=subprocess.PIPE)
     output, error = process.communicate()
     machine_name= output'''
@@ -65,6 +63,7 @@ def newClient():
                     TFile.close()
                     #run changes
                     fin,fout=os.popen4(command)
+                    print(fout.read())
                     os.remove("task.txt")
                     print("Task file has been removed and tasks completed")
                     time.sleep(10) #wait for a five minutes before doing the loop again
@@ -133,6 +132,7 @@ def oldClient():
                     TFile.close()
                     #run changes
                     fin,fout=os.popen4(command)
+                    print(fout.read())
                     os.remove("task.txt")
                     print("Task file has been removed and tasks completed")
                     time.sleep(10) #wait for a five minutes before doing the loop again
