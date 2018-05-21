@@ -87,7 +87,7 @@ def makeUpdates(appDict):
     #takes the dictionary of apps and creates a string with the final shell command
     if appDict['changes'] != {}:
         for x in appDict['changes']:
-            if appDict['changes'][x]=='0':
+            if appDict['changes'][x]==0:
                 if finalString=="":
                     finalString+='sudo apt-get -y install {}'.format(x)
                 else:
@@ -100,7 +100,7 @@ def makeUpdates(appDict):
     
     if appDict['install'] != {}:
         for x in appDict['install']:
-            if appDict['install'][x]=="0":
+            if appDict['install'][x]==0:
                 if finalString=="":
                     finalString+='sudo apt-get -y install {}'.format(x)
                 else:

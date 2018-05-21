@@ -131,7 +131,7 @@ def oldClient():
                     TFile.write(command)
                     TFile.close()
                     #run changes
-                    fin,fout=os.popen4(command)
+                    fin , fout=os.popen4(command)
                     print(fout.read())
                     os.remove("task.txt")
                     print("Task file has been removed and tasks completed")
