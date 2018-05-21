@@ -104,13 +104,6 @@ def makeUpdates(appDict):
                     finalString+='sudo apt-get -y install {}={}'.format(x, appDict['install'][x])
                 else:
                     finalString+='; sudo apt-get -y install {}={}'.format(x, appDict['install'][x])
-    if appDict['remove'] != {}:
-        for x in appDict['remove']:
-            if finalString=="":
-                finalString+='sudo apt-get -y remove {}'.format(x)
-            else:
-                finalString+='; sudo apt-get -y remove {}'.format(x)
-                
     return finalString
     
 #TEST IF THE INTERNET IS CONNECTED BY CHECKING IF GOOGLE IS ACCESSIBLE :/
