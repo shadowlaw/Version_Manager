@@ -88,7 +88,7 @@ def makeUpdates(appDict):
     if appDict['changes'] != {}:
         for x in appDict['changes']:
             if appDict['changes'][x]=='0':
-                 if finalString=="":
+                if finalString=="":
                     finalString+='sudo apt-get -y install {}'.format(x)
                 else:
                     finalString+='; sudo apt-get -y install {}'.format(x)
