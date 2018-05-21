@@ -87,18 +87,12 @@ def makeUpdates(appDict):
     #takes the dictionary of apps and creates a string with the final shell command
     if appDict['changes'] != {}:
         for x in appDict['changes']:
-            if appDict['changes'][x]=="0":
-                if finalString=="":
-                    finalString+='sudo apt-get -y install {}'.format(x)
-                else:
-                    finalString+='; sudo apt-get -y install {}'.format(x)
-            else:    
-                if finalString=="":
-                    finalString+='sudo apt-get -y install {}={}'.format(x,appDict['changes'][x])
-                else:
-                    finalString+='; sudo apt-get -y install {}={}'.format(x, appDict['changes'][x])
+            if finalString=="":
+                finalString+='sudo apt-get -y install {}={}'.format(x,appDict['changes'][x])
+            else:
+                finalString+='; sudo apt-get -y install {}={}'.format(x, appDict['changes'][x])
     
-    elif appDict['install'] != {}:
+    if appDict['install'] != {}:
         for x in appDict['install']:
             if appDict['install'][x]=="0":
                 if finalString=="":
@@ -110,7 +104,7 @@ def makeUpdates(appDict):
                     finalString+='sudo apt-get -y install {}={}'.format(x, appDict['install'][x])
                 else:
                     finalString+='; sudo apt-get -y install {}={}'.format(x, appDict['install'][x])
-    elif appDict['remove'] != {}:
+    if appDict['remove'] != {}:
         for x in appDict['remove']:
             if finalString=="":
                 finalString+='sudo apt-get -y remove {}'.format(x)
