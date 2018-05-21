@@ -220,7 +220,7 @@ def app_list():
 			new_app_list["apps"] = {}
 			
 			for items in list_data:
-				new_app_list["apps"][items["app_name"]] = items["version"]
+				new_app_list["apps"][items["app_name"]] = items["value"]
 			
 			try:
 				appObj = AppList(list_name)
