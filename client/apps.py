@@ -56,19 +56,14 @@ def printMenu():
 
 def getApps():
     #Runs the command to show all apps and their version
-    fin,fout=os.popen4("dpkg-query --show")
-
-    #converts the results to a string 
-    stdOUT= fout.read()
-
-    #converts the string to a list each line of output (the app and it's version)
-    stdlist = stdOUT.splitlines()
-
+    p=subprocess.Popen("dpkg-query --show",shell=True, stdout=subprocess.PIPE)
     #For each line, split the string and put the result in the appsAndVersions dictionary. (DICTIONARYS CAN BE EASILY CONVERTED TO JSON)
-    for line in stdlist:
-        a, b= line.split()[0], line.split()[1] #AUTOMATICALLY REMOVES ALL SPACES
+    for line in p.stdout:
+        a, b= line.split() #AUTOMATICALLY REMOVES ALL SPACES
         c= {a:b}
         appsAndVersions["apps"].update(c)
+    p.terminate()
+    p.wait()
     return appsAndVersions
 
     #convert to JSON array and return
