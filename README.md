@@ -13,10 +13,13 @@ Befor you can start the main server, you will need to install the following depe
 optional if password prompt does not appear
 ```mysql_secure_installation```<br/>
 
-2. Use flask-migrate.py after starting virtual environment to setup tables in db
+2. Create the database<br/>
 
-### Setting up The Server
-1. Create virtual environement `msvenv` <br/>
+3. Use flask-migrate.py after starting virtual environment to setup tables in db
+
+### Setting up Workbench, backend server and client
+From the server source code root directory:
+1. Create virtual environement `venv` <br/>
 ```virtualenv msvenv```<br/>
 2. Activate newly created environment<br/>
 ```source venv/bin/activate```<br/>
