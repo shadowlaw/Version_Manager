@@ -56,19 +56,14 @@ def printMenu():
 
 def getApps():
     #Runs the command to show all apps and their version
-    fin,fout=os.popen4("dpkg-query --show")
-
-    #converts the results to a string 
-    stdOUT= fout.read()
-
-    #converts the string to a list each line of output (the app and it's version)
-    stdlist = stdOUT.splitlines()
-
+    p=subprocess.Popen("dpkg-query --show",shell=True, stdout=subprocess.PIPE)
     #For each line, split the string and put the result in the appsAndVersions dictionary. (DICTIONARYS CAN BE EASILY CONVERTED TO JSON)
-    for line in stdlist:
-        a, b= line.split()[0], line.split()[1] #AUTOMATICALLY REMOVES ALL SPACES
+    for line in p.stdout:
+        a, b= line.split() #AUTOMATICALLY REMOVES ALL SPACES
         c= {a:b}
         appsAndVersions["apps"].update(c)
+    p.terminate()
+    p.wait()
     return appsAndVersions
 
     #convert to JSON array and return
@@ -87,17 +82,29 @@ def makeUpdates(appDict):
     #takes the dictionary of apps and creates a string with the final shell command
     if appDict['changes'] != {}:
         for x in appDict['changes']:
-            if finalString=="":
-                finalString+='sudo apt-get -y install {}={}'.format(x,appDict['changes'][x])
+            if appDict['changes'][x]==0:
+                if finalString=="":
+                    finalString+='sudo apt-get -y install {}'.format(x)
+                else:
+                    finalString+='; sudo apt-get -y install {}'.format(x)
             else:
-                finalString+='; sudo apt-get -y install {}={}'.format(x, appDict['changes'][x])
+                if finalString=="":
+                    finalString+='sudo apt-get -y install {}={}'.format(x,appDict['changes'][x])
+                else:
+                    finalString+='; sudo apt-get -y install {}={}'.format(x, appDict['changes'][x])
     
-    elif appDict['install'] != {}:
+    if appDict['install'] != {}:
         for x in appDict['install']:
-            if finalString=="":
-                finalString+='sudo apt-get -y install {}={}'.format(x, appDict['install'][x])
+            if appDict['install'][x]==0:
+                if finalString=="":
+                    finalString+='sudo apt-get -y install {}'.format(x)
+                else:
+                    finalString+='; sudo apt-get -y install {}'.format(x)
             else:
-                finalString+='; sudo apt-get -y install {}={}'.format(x, appDict['install'][x])
+                if finalString=="":
+                    finalString+='sudo apt-get -y install {}={}'.format(x, appDict['install'][x])
+                else:
+                    finalString+='; sudo apt-get -y install {}={}'.format(x, appDict['install'][x])
     return finalString
     
 #TEST IF THE INTERNET IS CONNECTED BY CHECKING IF GOOGLE IS ACCESSIBLE :/
