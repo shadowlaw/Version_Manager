@@ -156,21 +156,25 @@ def list_nodes():
 	
 	gl = get_all_groups()
 
-	sql ="select name, list_id from (select nodes.group_id, nodes.name from node_group join nodes on node_group.group_id = nodes.group_id) as A join group_list_assoc on A.group_id=group_list_assoc.group_id"
-	cur=db.engine.execute(sql)
-	results = cur.fetchall()
+	assoc_sql ="select name, list_id from (select nodes.group_id, nodes.name from node_group join nodes on node_group.group_id = nodes.group_id) as A join group_list_assoc on A.group_id=group_list_assoc.group_id"
+	cur=db.engine.execute(assoc_sql)
+	assoc_results = cur.fetchall()
+	
+	other_sql = "select name from nodes where name not in (select name from (select name, list_id from (select nodes.group_id, nodes.name from node_group join nodes on node_group.group_id = nodes.group_id) as A join group_list_assoc on A.group_id=group_list_assoc.group_id) as B);"
+	cur=db.engine.execute(other_sql)
+	other_results = cur.fetchall()
 	
 	nodes=[]
 	
-	for item in results:
+	for item in assoc_results:
 		tempDict = dict()
 		tempDict["name"]=item[0]
 		tempDict["list_id"]=item[1]
 
 		nodes.append(tempDict)
 	
-	if nodes == []:
-		nodes = Node.query.all()
+	for item in other_results:
+		nodes.append({"name": item[0]})
 
 	return render_template("manage_nodes.html", nodes=nodes, group_list=gl)
 
